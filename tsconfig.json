@@ -1,5 +1,22 @@
 {
   "extends": "@react-native/typescript-config",
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/node_modules", "**/Pods"]
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "src",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@screens/*": ["screens/*"],
+      "@navigation/*": ["navigation/*"],
+      "@types/*": ["types/*"],
+      "@utils/*": ["utils/*"],
+      "@store/*": ["store/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "Pods"]
 }
