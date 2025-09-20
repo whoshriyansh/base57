@@ -1,12 +1,17 @@
-import { Text } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+// App.js
+import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './navigation/AppNavigator';
+import AuthNavigator from './navigation/AuthNavigator';
 
-function App() {
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+
   return (
-    <SafeAreaProvider>
-      <Text>hello To do App</Text>
-    </SafeAreaProvider>
+    <NavigationContainer>
+      {isAuthenticated ? <AppNavigator /> : <AuthNavigator />}
+    </NavigationContainer>
   );
-}
+};
 
 export default App;

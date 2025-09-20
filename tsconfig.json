@@ -6,17 +6,8 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": "src",
-    "paths": {
-      "@components/*": ["components/*"],
-      "@screens/*": ["screens/*"],
-      "@navigation/*": ["navigation/*"],
-      "@types/*": ["types/*"],
-      "@utils/*": ["utils/*"],
-      "@store/*": ["store/*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "Pods"]
 }
