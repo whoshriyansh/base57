@@ -1,6 +1,6 @@
 export const colors = {
   background: '#0e0e0e',
-  backgroundSecondary: '#2e2e2e',
+  backgroundSecondary: '#1e1e1e',
   backgroundMuted: '#747474',
   foreground: '#f8f8f8',
   foregroundSecondary: '#e8e8e8',
