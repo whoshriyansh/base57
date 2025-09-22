@@ -1,78 +1,44 @@
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { colors } from '../../../constants/colors';
-import Feather from '@react-native-vector-icons/feather';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 
-const TaskList = ({ data }: any) => {
-  const renderTask = ({ item }: any) => (
-    <View style={styles.card}>
-      {/* Left Circle Checkbox */}
-      <TouchableOpacity style={styles.checkbox}>
-        {item.completed ? (
-          <MaterialIcons
-            name="radio-button-checked"
-            size={25}
-            color="#d3f809"
-          />
-        ) : (
-          <MaterialIcons
-            name="radio-button-unchecked"
-            size={25}
-            color="#d3f809"
-          />
-        )}
-      </TouchableOpacity>
+export const renderTask = ({ item }: any) => (
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => {
+      console.log('This is teh ID: ', item._id);
+    }}
+  >
+    <TouchableOpacity style={styles.checkbox}>
+      {item.completed ? (
+        <MaterialIcons name="radio-button-checked" size={25} color="#d3f809" />
+      ) : (
+        <MaterialIcons
+          name="radio-button-unchecked"
+          size={25}
+          color="#d3f809"
+        />
+      )}
+    </TouchableOpacity>
 
-      {/* Task Info */}
-      <View style={styles.info}>
-        <Text
-          style={[
-            styles.name,
-            item.completed && {
-              textDecorationLine: 'line-through',
-              color: colors.foregroundMuted,
-            },
-          ]}
-        >
-          {item.name}
-        </Text>
-      </View>
+    <View style={styles.info}>
+      <Text
+        style={[
+          styles.name,
+          item.completed && {
+            textDecorationLine: 'line-through',
+            color: colors.foregroundMuted,
+          },
+        ]}
+      >
+        {item.name}
+      </Text>
     </View>
-  );
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Task Inbox</Text>
-        <TouchableOpacity style={styles.addButton}>
-          <Feather name="plus" size={22} color={colors.primaryForeground} />
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={data}
-        keyExtractor={item => item._id}
-        // onPress={() => toggleComplete(item._id)}
-        renderItem={renderTask}
-      />
-    </View>
-  );
-};
-
-export default TaskList;
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

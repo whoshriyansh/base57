@@ -8,6 +8,7 @@ interface InputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  editable?: boolean;
   secureTextEntry?: boolean;
   autoCorrect?: boolean;
   error?: string;
@@ -41,9 +42,9 @@ const GlobalInput: React.FC<InputProps> = ({
   value,
   onChangeText,
   placeholder,
+  editable = true,
   secureTextEntry = false,
   autoCorrect = false,
-
   error,
 }) => {
   return (
@@ -53,6 +54,7 @@ const GlobalInput: React.FC<InputProps> = ({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
+        editable={editable}
         autoCorrect={autoCorrect}
         secureTextEntry={secureTextEntry}
         placeholderTextColor={colors.foregroundMuted}
@@ -68,7 +70,8 @@ export default GlobalInput;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5,
+    marginVertical: 2,
+    width: '100%',
   },
   label: {
     fontSize: 14,
@@ -76,11 +79,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    height: 50,
     borderWidth: 2,
     borderColor: colors.border,
-    borderRadius: 15,
-    paddingHorizontal: 12,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     backgroundColor: colors.input,
     color: colors.foreground,
     width: '100%',

@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
   content: {
     width: '100%',
     alignItems: 'flex-start',
+    gap: 10,
   },
   header: {
     fontSize: 16,
