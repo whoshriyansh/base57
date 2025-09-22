@@ -12,20 +12,44 @@ import {
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
+import { useAppDispatch } from '../../redux/hooks';
+import { loginUser } from '../../redux/slice/user/AuthSlice';
+import { loginSchema } from '../../validation/AuthValidation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '../../types/navigation';
 
-const LoginScreen = ({ navigation }) => {
+type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
+
+const LoginScreen = ({ navigation }: LoginScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useAppDispatch();
+
+  const handleLogin = () => {
+    const result = loginSchema.safeParse({ email, password });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach(err => {
+        if (err.path[0]) fieldErrors[err.path[0].toString()] = err.message;
+      });
+
+      return;
+    }
+
+    // setError({});
+    dispatch(loginUser({ email, password }));
+  };
 
   return (
     <SafeAreaView style={styles.box}>
       <KeyboardAvoidingView
-        style={{ flex: 1, width: '100%' }}
+        style={styles.keyboardAvoiding}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // adjust if header overlaps
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -66,7 +90,7 @@ const LoginScreen = ({ navigation }) => {
             />
 
             {/* Login Button */}
-            <TouchableOpacity style={styles.loginButton}>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
 
@@ -106,6 +130,13 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingTop: 50,
     backgroundColor: colors.background,
+  },
+  keyboardAvoiding: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   header: {
     justifyContent: 'center',

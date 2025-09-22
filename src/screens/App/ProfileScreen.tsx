@@ -10,9 +10,23 @@ import {
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { colors } from '../../constants/colors'; // update this path
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppDispatch } from '../../redux/hooks';
+import { logout } from '../../redux/slice/user/AuthSlice';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParamList } from '../../types/navigation';
 
-const ProfileScreen = () => {
+type ProfileScreenProps = NativeStackScreenProps<AppStackParamList, 'Profile'>;
+
+const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
+  const dispatch = useAppDispatch();
+
   const handlePress = (action: string) => {
+    if (action === 'Logout') {
+      dispatch(logout());
+      navigation.navigate('Login');
+      return;
+    }
+
     Alert.alert(action, `${action} pressed`);
   };
 
@@ -93,6 +107,22 @@ const ProfileScreen = () => {
           <View style={styles.textContainer}>
             <Text style={styles.title}>Options</Text>
             <Text style={styles.description}>Additional features</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.listItem}
+          onPress={() => handlePress('Logout')}
+        >
+          <Ionicons
+            name="log-out-outline"
+            size={22}
+            color={colors.foreground}
+            style={styles.icon}
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>Logout</Text>
+            <Text style={styles.description}>Click to Logout</Text>
           </View>
         </TouchableOpacity>
       </View>

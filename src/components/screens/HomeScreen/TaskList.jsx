@@ -5,63 +5,30 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState } from 'react';
-import FontAwesome from '@react-native-vector-icons/fontawesome';
+import React from 'react';
 import { colors } from '../../../constants/colors';
 import Feather from '@react-native-vector-icons/feather';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
 
-const TaskList = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      name: 'Finish React Native project',
-      category: 'Work',
-      priority: 'High',
-      dueDate: '2025-09-25',
-      completed: false,
-    },
-    {
-      id: 2,
-      name: 'Grocery Shopping',
-      category: 'Personal',
-      priority: 'Low',
-      dueDate: '2025-09-23',
-      completed: true,
-    },
-  ]);
-
-  const toggleComplete = id => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
-    );
-  };
-
-  const getPriorityColor = priority => {
-    switch (priority) {
-      case 'High':
-        return colors.error;
-      case 'Medium':
-        return colors.warning;
-      case 'Low':
-        return colors.success;
-      default:
-        return colors.foregroundMuted;
-    }
-  };
-
+const TaskList = ({ data }) => {
   const renderTask = ({ item }) => (
     <View style={styles.card}>
       {/* Left Circle Checkbox */}
-      <TouchableOpacity
-        onPress={() => toggleComplete(item.id)}
-        style={styles.checkbox}
-      >
+      <TouchableOpacity style={styles.checkbox}>
         {item.completed ? (
-          <FontAwesome name="angle-double-up" size={25} color="gold" solid />
+          <MaterialIcons
+            name="radio-button-checked"
+            size={25}
+            color="#d3f809"
+            solid
+          />
         ) : (
-          <FontAwesome name="angle-double-down" size={25} color="gold" solid />
+          <MaterialIcons
+            name="radio-button-unchecked"
+            size={25}
+            color="#d3f809"
+            solid
+          />
         )}
       </TouchableOpacity>
 
@@ -78,34 +45,6 @@ const TaskList = () => {
         >
           {item.name}
         </Text>
-        <View style={styles.metaRow}>
-          <View style={styles.badge}>
-            <FontAwesome name="star" size={25} color="gold" solid />
-            <Text style={styles.badgeText}>{item.category}</Text>
-          </View>
-          <View
-            style={[
-              styles.badge,
-              { backgroundColor: getPriorityColor(item.priority) + '20' },
-            ]}
-          >
-            <FontAwesome name="amazon" size={25} color="gold" solid />
-            <Text
-              style={[
-                styles.badgeText,
-                { color: getPriorityColor(item.priority) },
-              ]}
-            >
-              {item.priority}
-            </Text>
-          </View>
-          <View style={styles.badge}>
-            <FontAwesome name="star" size={25} color="gold" solid />
-            <Text style={[styles.badgeText, { color: colors.info }]}>
-              {item.dueDate}
-            </Text>
-          </View>
-        </View>
       </View>
     </View>
   );
@@ -120,8 +59,9 @@ const TaskList = () => {
       </View>
 
       <FlatList
-        data={tasks}
-        keyExtractor={item => item.id.toString()}
+        data={data}
+        keyExtractor={item => item._id}
+        // onPress={() => toggleComplete(item._id)}
         renderItem={renderTask}
         ItemSeparatorComponent={<View style={{ height: 10 }} />}
       />

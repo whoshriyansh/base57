@@ -12,21 +12,35 @@ import {
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
+import { useAppDispatch } from '../../redux/hooks';
+import { registerUser } from '../../redux/slice/user/AuthSlice';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '../../types/navigation';
 
-const RegisterScreen = ({ navigation }) => {
+type RegisterScreenProps = NativeStackScreenProps<
+  AuthStackParamList,
+  'Register'
+>;
+
+const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useAppDispatch();
+
+  const handleRegister = () => {
+    dispatch(registerUser({ username, email, password }));
+  };
 
   return (
     <SafeAreaView style={styles.box}>
       <KeyboardAvoidingView
-        style={{ flex: 1, width: '100%' }}
+        style={styles.keyboardAvoiding}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -76,7 +90,10 @@ const RegisterScreen = ({ navigation }) => {
             />
 
             {/* Register Button */}
-            <TouchableOpacity style={styles.registerButton}>
+            <TouchableOpacity
+              style={styles.registerButton}
+              onPress={handleRegister}
+            >
               <Text style={styles.registerButtonText}>Register</Text>
             </TouchableOpacity>
 
@@ -116,6 +133,13 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingTop: 50,
     backgroundColor: colors.background,
+  },
+  keyboardAvoiding: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   header: {
     justifyContent: 'center',

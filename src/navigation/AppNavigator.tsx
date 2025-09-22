@@ -6,8 +6,32 @@ import ProfileScreen from '../screens/App/ProfileScreen';
 import { colors } from '../constants/colors';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import { AppStackParamList } from '../types/navigation';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<AppStackParamList>();
+
+type TabBarIconProps = {
+  focused: boolean;
+  color: string;
+  size: number;
+};
+
+const renderHomeIcon = ({ focused, color, size }: TabBarIconProps) => {
+  const iconName = focused ? 'home' : 'home-outline';
+  return <Ionicons name={iconName} size={size} color={color} />;
+};
+
+const renderFilterIcon = ({ focused, color, size }: TabBarIconProps) => {
+  const iconName = focused ? 'filter' : 'filter-outline';
+  return <MaterialDesignIcons name={iconName} size={size} color={color} />;
+};
+
+const renderProfileIcon = ({ focused, color, size }: TabBarIconProps) => {
+  const iconName = focused
+    ? 'account-cowboy-hat'
+    : 'account-cowboy-hat-outline';
+  return <MaterialDesignIcons name={iconName} size={size} color={color} />;
+};
 
 const AppNavigator = () => {
   return (
@@ -24,38 +48,17 @@ const AppNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName = focused ? 'home' : 'home-outline';
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-        }}
+        options={{ tabBarIcon: renderHomeIcon }}
       />
       <Tab.Screen
         name="Filter"
         component={CategoriesScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName = focused ? 'filter' : 'filter-outline';
-            return (
-              <MaterialDesignIcons name={iconName} size={size} color={color} />
-            );
-          },
-        }}
+        options={{ tabBarIcon: renderFilterIcon }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName = focused
-              ? 'account-cowboy-hat'
-              : 'account-cowboy-hat-outline';
-            return (
-              <MaterialDesignIcons name={iconName} size={size} color={color} />
-            );
-          },
-        }}
+        options={{ tabBarIcon: renderProfileIcon }}
       />
     </Tab.Navigator>
   );

@@ -16,7 +16,7 @@ const PriorityFilter = ({
   const [selected, setSelected] = useState<string | null>(null);
 
   const handlePress = (priority: string) => {
-    const newValue = selected === priority ? null : priority; // toggle
+    const newValue = selected === priority ? null : priority;
     setSelected(newValue);
     if (onSelect) onSelect(newValue || '');
   };
