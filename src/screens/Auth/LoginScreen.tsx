@@ -1,15 +1,14 @@
+// screens/Auth/LoginScreen.tsx
+import React, { useState } from 'react';
 import {
-  Image,
   StyleSheet,
   Text,
   View,
-  TextInput,
-  TouchableOpacity,
+  Image,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
 } from 'react-native';
-import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
 import { useAppDispatch } from '../../redux/hooks';
@@ -17,27 +16,33 @@ import { loginUser } from '../../redux/slice/user/AuthSlice';
 import { loginSchema } from '../../validation/AuthValidation';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../types/navigation';
+import GlobalInput from '../../components/ui/GlobalInput';
+import GlobalButton from '../../components/ui/GlobalButton';
 
 type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 const LoginScreen = ({ navigation }: LoginScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
   const dispatch = useAppDispatch();
 
   const handleLogin = () => {
     const result = loginSchema.safeParse({ email, password });
 
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
+      const fieldErrors: { email?: string; password?: string } = {};
       result.error.issues.forEach(err => {
-        if (err.path[0]) fieldErrors[err.path[0].toString()] = err.message;
+        if (err.path[0])
+          fieldErrors[err.path[0] as 'email' | 'password'] = err.message;
       });
-
+      setErrors(fieldErrors);
       return;
     }
 
-    // setError({});
+    setErrors({});
     dispatch(loginUser({ email, password }));
   };
 
@@ -64,35 +69,37 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
 
           {/* Form */}
           <View style={styles.form}>
-            <Text style={styles.text}>Welcome !</Text>
+            <Text style={styles.text}>Welcome!</Text>
             <Text style={styles.headingText}>
               Please choose the preferred way to login
             </Text>
 
             {/* Email Input */}
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor={colors.foregroundMuted}
+            <GlobalInput
+              label="Email"
               value={email}
               onChangeText={setEmail}
-              keyboardType="email-address"
+              placeholder="Enter your email"
+              error={errors.email}
+              autoCorrect={false}
             />
 
             {/* Password Input */}
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor={colors.foregroundMuted}
-              secureTextEntry
+            <GlobalInput
+              label="Password"
               value={password}
               onChangeText={setPassword}
+              placeholder="Enter your password"
+              secureTextEntry
+              error={errors.password}
             />
 
             {/* Login Button */}
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Login</Text>
-            </TouchableOpacity>
+            <GlobalButton
+              title="Login"
+              onPress={handleLogin}
+              variant="primary"
+            />
 
             {/* OR Divider */}
             <View style={styles.dividerContainer}>
@@ -102,16 +109,21 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
             </View>
 
             {/* Google Button */}
-            <TouchableOpacity style={styles.googleButton}>
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
+            <GlobalButton
+              title="Continue with Google"
+              onPress={() => {}}
+              variant="secondary"
+            />
 
             {/* Register Link */}
             <View style={styles.registerContainer}>
               <Text style={styles.registerText}>Don’t have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.registerLink}>Register</Text>
-              </TouchableOpacity>
+              <Text
+                style={styles.registerLink}
+                onPress={() => navigation.navigate('Register')}
+              >
+                Register
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -162,9 +174,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     justifyContent: 'flex-start',
-    gap: 15,
+    gap: 10,
     paddingVertical: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   text: {
     color: colors.foreground,
@@ -175,28 +187,6 @@ const styles = StyleSheet.create({
     color: colors.foregroundMuted,
     fontSize: 14,
     fontWeight: 'normal',
-  },
-  input: {
-    height: 50,
-    borderColor: colors.border,
-    color: colors.foreground,
-    borderWidth: 2,
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    width: '100%',
-    backgroundColor: colors.input,
-  },
-  loginButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 15,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  loginButtonText: {
-    color: colors.primaryForeground,
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -212,21 +202,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     color: colors.foregroundMuted,
     fontSize: 12,
-  },
-  googleButton: {
-    backgroundColor: colors.foreground,
-    borderRadius: 15,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  googleButtonText: {
-    color: colors.primaryForeground,
-    fontSize: 16,
-    fontWeight: '500',
   },
   registerContainer: {
     flexDirection: 'row',

@@ -10,8 +10,8 @@ import { colors } from '../../../constants/colors';
 import Feather from '@react-native-vector-icons/feather';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 
-const TaskList = ({ data }) => {
-  const renderTask = ({ item }) => (
+const TaskList = ({ data }: any) => {
+  const renderTask = ({ item }: any) => (
     <View style={styles.card}>
       {/* Left Circle Checkbox */}
       <TouchableOpacity style={styles.checkbox}>
@@ -20,14 +20,12 @@ const TaskList = ({ data }) => {
             name="radio-button-checked"
             size={25}
             color="#d3f809"
-            solid
           />
         ) : (
           <MaterialIcons
             name="radio-button-unchecked"
             size={25}
             color="#d3f809"
-            solid
           />
         )}
       </TouchableOpacity>
@@ -63,7 +61,6 @@ const TaskList = ({ data }) => {
         keyExtractor={item => item._id}
         // onPress={() => toggleComplete(item._id)}
         renderItem={renderTask}
-        ItemSeparatorComponent={<View style={{ height: 10 }} />}
       />
     </View>
   );

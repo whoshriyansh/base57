@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from './redux/hooks';
 import { store } from './redux/store';
 import Toast from 'react-native-toast-message';
 import { loadUserFromStorage } from './redux/slice/user/AuthSlice';
+import { toastConfig } from './components/ui/Toast';
 
 const RootNavigator = () => {
   const dispatch = useAppDispatch();
@@ -36,7 +37,7 @@ const RootNavigator = () => {
 const App = () => (
   <Provider store={store}>
     <RootNavigator />
-    <Toast />
+    <Toast config={toastConfig} />
   </Provider>
 );
 

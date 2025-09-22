@@ -1,21 +1,22 @@
+// screens/Auth/RegisterScreen.tsx
+import React, { useState } from 'react';
 import {
-  Image,
   StyleSheet,
   Text,
   View,
-  TextInput,
-  TouchableOpacity,
+  Image,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
 } from 'react-native';
-import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
 import { useAppDispatch } from '../../redux/hooks';
 import { registerUser } from '../../redux/slice/user/AuthSlice';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../types/navigation';
+import GlobalInput from '../../components/ui/GlobalInput';
+import GlobalButton from '../../components/ui/GlobalButton';
 
 type RegisterScreenProps = NativeStackScreenProps<
   AuthStackParamList,
@@ -26,9 +27,26 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{
+    username?: string;
+    email?: string;
+    password?: string;
+  }>({});
   const dispatch = useAppDispatch();
 
   const handleRegister = () => {
+    // TODO: Replace with proper validation schema
+    const newErrors: typeof errors = {};
+    if (!username) newErrors.username = 'Username is required';
+    if (!email) newErrors.email = 'Email is required';
+    if (!password) newErrors.password = 'Password is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     dispatch(registerUser({ username, email, password }));
   };
 
@@ -61,41 +79,39 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             </Text>
 
             {/* Username Input */}
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              placeholderTextColor={colors.foregroundMuted}
+            <GlobalInput
+              label="Username"
               value={username}
               onChangeText={setUsername}
+              placeholder="Enter your username"
+              error={errors.username}
             />
 
             {/* Email Input */}
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor={colors.foregroundMuted}
+            <GlobalInput
+              label="Email"
               value={email}
               onChangeText={setEmail}
-              keyboardType="email-address"
+              placeholder="Enter your email"
+              error={errors.email}
             />
 
             {/* Password Input */}
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor={colors.foregroundMuted}
-              secureTextEntry
+            <GlobalInput
+              label="Password"
               value={password}
               onChangeText={setPassword}
+              placeholder="Enter your password"
+              secureTextEntry
+              error={errors.password}
             />
 
             {/* Register Button */}
-            <TouchableOpacity
-              style={styles.registerButton}
+            <GlobalButton
+              title="Register"
               onPress={handleRegister}
-            >
-              <Text style={styles.registerButtonText}>Register</Text>
-            </TouchableOpacity>
+              variant="primary"
+            />
 
             {/* OR Divider */}
             <View style={styles.dividerContainer}>
@@ -105,16 +121,21 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             </View>
 
             {/* Google Button */}
-            <TouchableOpacity style={styles.googleButton}>
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
+            <GlobalButton
+              title="Continue with Google"
+              onPress={() => {}}
+              variant="secondary"
+            />
 
             {/* Login Link */}
             <View style={styles.loginContainer}>
               <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginLink}>Login</Text>
-              </TouchableOpacity>
+              <Text
+                style={styles.loginLink}
+                onPress={() => navigation.navigate('Login')}
+              >
+                Login
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -148,8 +169,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    height: 100,
-    width: 100,
+    height: 80,
+    width: 80,
     resizeMode: 'contain',
   },
   headerText: {
@@ -165,9 +186,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     justifyContent: 'flex-start',
-    gap: 15,
+    gap: 10,
     paddingVertical: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   text: {
     color: colors.foreground,
@@ -178,28 +199,6 @@ const styles = StyleSheet.create({
     color: colors.foregroundMuted,
     fontSize: 14,
     fontWeight: 'normal',
-  },
-  input: {
-    height: 50,
-    borderColor: colors.border,
-    color: colors.foreground,
-    borderWidth: 2,
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    width: '100%',
-    backgroundColor: colors.input,
-  },
-  registerButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 15,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  registerButtonText: {
-    color: colors.primaryForeground,
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -215,21 +214,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     color: colors.foregroundMuted,
     fontSize: 12,
-  },
-  googleButton: {
-    backgroundColor: colors.foreground,
-    borderRadius: 15,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  googleButtonText: {
-    color: colors.primaryForeground,
-    fontSize: 16,
-    fontWeight: '500',
   },
   loginContainer: {
     flexDirection: 'row',
