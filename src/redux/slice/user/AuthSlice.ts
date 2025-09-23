@@ -6,9 +6,11 @@ import {
   LoginResponse,
   RegisterCredentials,
   UserState,
+  UserCredentials,
 } from '../../../types/auth';
 import Toast from 'react-native-toast-message';
 import { axiosInstance } from '../../../services/apiInterceptor';
+import { UpdateUserInput } from '../../../validation/UpdateUserSchema';
 
 const initialState: UserState = {
   user: null,
@@ -82,14 +84,13 @@ export const loginUser = createAsyncThunk<
 
 // LOAD USER
 export const loadUserFromStorage = createAsyncThunk<
-  { token: string; user: LoginResponse['user'] },
+  { token: string; user: UserCredentials },
   void,
   { rejectValue: string }
 >('user/loadUserFromStorage', async (_, { rejectWithValue }) => {
   try {
     const credentials = await Keychain.getGenericPassword();
-    if (credentials) {
-      console.log('Keychain Data:', credentials);
+    if (credentials && credentials.password) {
       const authData = JSON.parse(credentials.password);
       return { token: authData.token, user: authData.user };
     }
@@ -99,6 +100,63 @@ export const loadUserFromStorage = createAsyncThunk<
     return rejectWithValue(error.message);
   }
 });
+
+// UPDATE USER
+export const updateUser = createAsyncThunk<
+  { user: UserCredentials },
+  UpdateUserInput,
+  { rejectValue: string }
+>('user/updateUser', async (updateData, { rejectWithValue, getState }) => {
+  try {
+    const state = getState() as { user: UserState };
+    const token = state.user.token;
+    const response = await axiosInstance.patch(
+      ENDPOINTS.UPDATE_USER,
+      updateData,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    Toast.show({
+      type: 'success',
+      text1: 'Profile Updated',
+      text2: response.data.message,
+    });
+    return { user: response.data.data.user };
+  } catch (error: any) {
+    console.error('Update User Error:', error);
+    const msg = error.response?.data?.message || 'Update failed';
+    Toast.show({ type: 'error', text1: 'Update Error', text2: msg });
+    return rejectWithValue(msg);
+  }
+});
+
+// DELETE USER
+export const deleteUser = createAsyncThunk<void, void, { rejectValue: string }>(
+  'user/deleteUser',
+  async (_, { rejectWithValue, getState, dispatch }) => {
+    try {
+      const state = getState() as { user: UserState };
+      const token = state.user.token;
+      const response = await axiosInstance.delete(ENDPOINTS.DELETE_USER, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Account Deleted',
+        text2: response.data.message,
+      });
+      dispatch(logout()); // Log out after deletion
+    } catch (error: any) {
+      console.error('Delete User Error:', error);
+      const msg = error.response?.data?.message || 'Deletion failed';
+      Toast.show({ type: 'error', text1: 'Delete Error', text2: msg });
+      return rejectWithValue(msg);
+    }
+  },
+);
 
 const userSlice = createSlice({
   name: 'user',
@@ -111,7 +169,7 @@ const userSlice = createSlice({
       state.error = null;
       Keychain.resetGenericPassword();
     },
-    setUser: (state, action: PayloadAction<LoginResponse['user']>) => {
+    setUser: (state, action: PayloadAction<UserCredentials | null>) => {
       state.user = action.payload;
     },
   },
@@ -133,7 +191,6 @@ const userSlice = createSlice({
         state.isAuthenticated = false;
         state.error = action.payload || 'Login failed';
       })
-
       // REGISTER
       .addCase(registerUser.pending, state => {
         state.loading = true;
@@ -150,7 +207,6 @@ const userSlice = createSlice({
         state.isAuthenticated = false;
         state.error = action.payload || 'Registration failed';
       })
-
       // LOAD USER
       .addCase(loadUserFromStorage.fulfilled, (state, action) => {
         state.token = action.payload.token;
@@ -161,6 +217,34 @@ const userSlice = createSlice({
         state.isAuthenticated = false;
         state.token = null;
         state.user = null;
+      })
+      // UPDATE USER
+      .addCase(updateUser.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Update failed';
+      })
+      // DELETE USER
+      .addCase(deleteUser.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, state => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Deletion failed';
       });
   },
 });

@@ -1,8 +1,9 @@
+// Updated taskSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import Toast from 'react-native-toast-message';
 import { ENDPOINTS } from '../../../services/apiBaseUrl';
 import { apiClient } from '../../../services/api';
-import { Task, TaskState } from '../../../types/task';
+import { CreateTaskPayload, Task, TaskState } from '../../../types/task';
 
 // Initial state
 const initialState: TaskState = {
@@ -13,11 +14,11 @@ const initialState: TaskState = {
 
 export const fetchTasks = createAsyncThunk<
   Task[],
-  void,
+  { category?: string; priority?: string; dueDate?: string } | void,
   { rejectValue: string }
->('task/fetchAll', async (_, { rejectWithValue }) => {
+>('task/fetchAll', async (params = {}, { rejectWithValue }) => {
   try {
-    const response = await apiClient.get(ENDPOINTS.FETCH_ALL);
+    const response = await apiClient.get(ENDPOINTS.FETCH_ALL, { params });
 
     Toast.show({
       type: 'success',
@@ -25,7 +26,7 @@ export const fetchTasks = createAsyncThunk<
       text2: response.data.message,
     });
 
-    return response.data.data; // return the array of tasks
+    return response.data.data;
   } catch (error: any) {
     console.error('Fetching Tasks Failed', error);
 
@@ -38,7 +39,7 @@ export const fetchTasks = createAsyncThunk<
 
 export const createTask = createAsyncThunk<
   Task,
-  Omit<Task, '_id'>,
+  CreateTaskPayload,
   { rejectValue: string }
 >('task/create', async (newTask, { rejectWithValue }) => {
   try {
@@ -63,7 +64,7 @@ export const createTask = createAsyncThunk<
 
 export const updateTask = createAsyncThunk<
   Task,
-  { id: string; updatedTask: Partial<Omit<Task, '_id'>> },
+  { id: string; updatedTask: Partial<CreateTaskPayload> },
   { rejectValue: string }
 >('task/update', async ({ id, updatedTask }, { rejectWithValue }) => {
   try {

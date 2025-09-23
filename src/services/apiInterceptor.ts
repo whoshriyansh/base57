@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.1.14:8001';
+const API_BASE_URL = 'https://base57-server.vercel.app';
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

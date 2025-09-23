@@ -9,36 +9,48 @@ import React, { useEffect, useState } from 'react';
 import { colors } from '../../constants/colors';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
-  fetchCategories,
-  createCategory,
-  deleteCategory,
-} from '../../redux/slice/task/CategorySlice';
+  fetchPriorities,
+  createPriority,
+  deletePriority,
+} from '../../redux/slice/task/PrioritySlice';
 import GlobalButton from '../../components/ui/GlobalButton';
 import GlobalModal from '../../components/ui/GlobalModal';
 import GlobalInput from '../../components/ui/GlobalInput';
 import Feather from '@react-native-vector-icons/feather';
+import Ionicons from '@react-native-vector-icons/ionicons';
 import Toast from 'react-native-toast-message';
-import { Category } from '../../types/task';
+import { Priority } from '../../types/task';
 
-const CategoriesScreen = () => {
+const PrioritiesScreen = () => {
   const dispatch = useAppDispatch();
-  const { categories, loading } = useAppSelector(state => state.category);
-  const [categoryData, setCategoryData] = useState({
+  const { priorities, loading } = useAppSelector(state => state.priority);
+  const [priorityData, setPriorityData] = useState({
     name: '',
-    emoji: '',
+    color: '',
   });
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+  const [selectedPriorityId, setSelectedPriorityId] = useState<string | null>(
     null,
   );
+
+  const availableColors = [
+    '#f74242',
+    '#1cfbad',
+    '#1a8afa',
+    '#f8f8f8',
+    '#d27cf7',
+    '#fa9828',
+    '#f7d61b',
+    '#f750b7',
+  ];
 
   const modalToggle = () => {
     setModalVisible(prev => !prev);
     if (modalVisible) {
-      setCategoryData({
+      setPriorityData({
         name: '',
-        emoji: '',
+        color: '',
       });
     }
   };
@@ -46,75 +58,82 @@ const CategoriesScreen = () => {
   const deleteModalToggle = () => {
     setDeleteModalVisible(prev => !prev);
     if (!deleteModalVisible) {
-      setSelectedCategoryId(null);
+      setSelectedPriorityId(null);
     }
   };
 
   useEffect(() => {
-    dispatch(fetchCategories());
+    dispatch(fetchPriorities());
   }, [dispatch]);
 
-  const handleSaveCategory = async () => {
-    if (!categoryData.name) {
+  const handleSavePriority = async () => {
+    if (!priorityData.name) {
       Toast.show({
         type: 'error',
         text1: 'Validation Error',
-        text2: 'Category name is required',
+        text2: 'Priority name is required',
+      });
+      return;
+    }
+    if (!priorityData.color) {
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Priority color is required',
       });
       return;
     }
 
     try {
-      await dispatch(createCategory(categoryData)).unwrap();
+      await dispatch(createPriority(priorityData)).unwrap();
       Toast.show({
         type: 'success',
-        text1: 'Category Created',
-        text2: `${categoryData.name} has been added`,
+        text1: 'Priority Created',
+        text2: `${priorityData.name} has been added`,
       });
       modalToggle();
     } catch (err) {
-      console.error('Failed to create category', err);
+      console.error('Failed to create priority', err);
       Toast.show({
         type: 'error',
-        text1: 'Creating Category Failed',
-        text2: 'An error occurred while creating the category',
+        text1: 'Creating Priority Failed',
+        text2: 'An error occurred while creating the priority',
       });
     }
   };
 
-  const handleDeleteCategory = async () => {
-    if (!selectedCategoryId) return;
+  const handleDeletePriority = async () => {
+    if (!selectedPriorityId) return;
 
     try {
-      await dispatch(deleteCategory(selectedCategoryId)).unwrap();
+      await dispatch(deletePriority(selectedPriorityId)).unwrap();
       Toast.show({
         type: 'success',
-        text1: 'Category Deleted',
-        text2: 'The category has been deleted',
+        text1: 'Priority Deleted',
+        text2: 'The priority has been deleted',
       });
       deleteModalToggle();
     } catch (err) {
-      console.error('Failed to delete category', err);
+      console.error('Failed to delete priority', err);
       Toast.show({
         type: 'error',
-        text1: 'Deleting Category Failed',
-        text2: 'An error occurred while deleting the category',
+        text1: 'Deleting Priority Failed',
+        text2: 'An error occurred while deleting the priority',
       });
-      deleteModalToggle();
     }
   };
 
-  const handleLongPress = (item: Category) => {
-    setSelectedCategoryId(item._id);
+  const handleLongPress = (item: Priority) => {
+    setSelectedPriorityId(item._id);
     deleteModalToggle();
   };
 
-  const renderCategoryItem = ({ item }: { item: Category }) => (
+  const renderPriorityItem = ({ item }: { item: Priority }) => (
     <TouchableOpacity
       style={styles.card}
       onLongPress={() => handleLongPress(item)}
     >
-      <Text style={styles.flag}>{item.emoji || '🏷️'}</Text>
+      <Ionicons name="flag-sharp" size={30} color={item.color[0]} />
       <Text style={styles.name}>{item.name}</Text>
     </TouchableOpacity>
   );
@@ -122,44 +141,57 @@ const CategoriesScreen = () => {
   return (
     <View style={styles.box}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Categories</Text>
+        <Text style={styles.headerTitle}>Priorities</Text>
         <GlobalButton variant="primary" size="sm" onPress={modalToggle}>
           <Feather name="plus" size={22} />
         </GlobalButton>
       </View>
       <FlatList // Changed to FlatList for internal scrolling
-        data={categories}
+        data={priorities}
         keyExtractor={item => item._id || ''}
-        renderItem={renderCategoryItem}
+        renderItem={renderPriorityItem}
         contentContainerStyle={styles.wrapContainer}
         style={styles.container}
       />
 
       <GlobalModal
-        header="Add New Category"
-        description="Fill out the category details below"
+        header="Add New Priority"
+        description="Fill out the priority details below"
         visible={modalVisible}
         onClose={modalToggle}
       >
-        {/* Category Name */}
+        {/* Priority Name */}
         <GlobalInput
-          label="Category Name"
-          placeholder="Work"
-          value={categoryData.name}
+          label="Priority Name"
+          placeholder="High"
+          value={priorityData.name}
           onChangeText={text =>
-            setCategoryData(prev => ({ ...prev, name: text }))
+            setPriorityData(prev => ({ ...prev, name: text }))
           }
         />
 
-        {/* Emoji (optional) */}
-        <GlobalInput
-          label="Emoji (optional)"
-          placeholder="💼"
-          value={categoryData.emoji}
-          onChangeText={text =>
-            setCategoryData(prev => ({ ...prev, emoji: text }))
-          }
-        />
+        {/* Color Selection */}
+        <View style={{ marginVertical: 2, width: '100%' }}>
+          <Text style={styles.label}>Select Color</Text>
+          <View style={styles.colorGrid}>
+            {availableColors.map(col => (
+              <TouchableOpacity
+                key={col}
+                onPress={() =>
+                  setPriorityData(prev => ({ ...prev, color: col }))
+                }
+              >
+                <View
+                  style={[
+                    styles.colorCircle,
+                    { backgroundColor: col },
+                    priorityData.color === col && styles.selectedColor,
+                  ]}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
         <View style={styles.footer}>
           <GlobalButton
@@ -169,8 +201,8 @@ const CategoriesScreen = () => {
             size="sm"
           />
           <GlobalButton
-            title={loading ? 'Saving...' : 'Save Category'}
-            onPress={handleSaveCategory}
+            title={loading ? 'Saving...' : 'Save Priority'}
+            onPress={handleSavePriority}
             variant="primary"
             size="sm"
           />
@@ -178,8 +210,8 @@ const CategoriesScreen = () => {
       </GlobalModal>
 
       <GlobalModal
-        header="Delete Category"
-        description="Are you sure you want to delete this category?"
+        header="Delete Priority"
+        description="Are you sure you want to delete this priority?"
         visible={deleteModalVisible}
         onClose={deleteModalToggle}
       >
@@ -192,7 +224,7 @@ const CategoriesScreen = () => {
           />
           <GlobalButton
             title={loading ? 'Deleting...' : 'Yes, Delete'}
-            onPress={handleDeleteCategory}
+            onPress={handleDeletePriority}
             variant="primary"
             size="sm"
           />
@@ -202,7 +234,7 @@ const CategoriesScreen = () => {
   );
 };
 
-export default CategoriesScreen;
+export default PrioritiesScreen;
 
 const styles = StyleSheet.create({
   box: {
@@ -244,15 +276,38 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
   },
-  flag: {
-    fontSize: 30,
-  },
   name: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.cardForeground,
     marginTop: 5,
     textAlign: 'center',
+  },
+  label: {
+    fontSize: 14,
+    color: colors.foregroundMuted,
+    marginBottom: 5,
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: colors.input,
+    width: '100%',
+  },
+  colorCircle: {
+    width: 15,
+    height: 15,
+    borderRadius: 20,
+  },
+  selectedColor: {
+    borderWidth: 2,
+    borderColor: colors.primary,
   },
   wrapContainer: {
     flexDirection: 'row',

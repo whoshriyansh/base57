@@ -1,12 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/App/HomeScreen';
-import CategoriesScreen from '../screens/App/CategoriesScreen';
 import ProfileScreen from '../screens/App/ProfileScreen';
 import { colors } from '../constants/colors';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { AppStackParamList } from '../types/navigation';
+import FilterScreen from '../screens/App/FilterScreen';
 
 const Tab = createBottomTabNavigator<AppStackParamList>();
 
@@ -52,7 +52,7 @@ const AppNavigator = () => {
       />
       <Tab.Screen
         name="Filter"
-        component={CategoriesScreen}
+        component={FilterScreen}
         options={{ tabBarIcon: renderFilterIcon }}
       />
       <Tab.Screen

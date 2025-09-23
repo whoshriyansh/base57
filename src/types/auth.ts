@@ -1,25 +1,38 @@
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface RegisterCredentials {
+export interface UserCredentials {
+  id: string;
   username: string;
   email: string;
-  password: string;
+  avatar?: string;
 }
 
 export interface LoginResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
   token: string;
+  user: UserCredentials;
 }
 
+export type LoginCredentials = {
+  email: string;
+  password: string;
+};
+
+export type RegisterCredentials = {
+  username: string;
+  email: string;
+  password: string;
+};
+
+export type UpdateUserCredentials = {
+  username?: string;
+  email?: string;
+  password?: string;
+};
+
+export type UpdateUserResponse = {
+  user: UserCredentials;
+};
+
 export interface UserState {
-  user: LoginResponse['user'] | null;
+  user: UserCredentials | null;
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
